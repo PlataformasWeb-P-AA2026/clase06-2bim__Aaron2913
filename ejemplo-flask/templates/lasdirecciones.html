@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direcciones</title>
+</head>
+<body>
+
+    <h1>Listado de direcciones</h1>
+
+    <h3>Total de direcciones: {{ numero_direcciones }}</h3>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Estudiante</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for direccion in direcciones %}
+                <tr>
+                    <td>{{ direccion.descripcion }}</td>
+                    <td>{{ direccion.tipo }}</td>
+                    <td>{{ direccion.estudiante }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

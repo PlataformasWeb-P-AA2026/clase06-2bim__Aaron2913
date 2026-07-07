@@ -5,7 +5,7 @@ import json
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = 'una-clave-secreta-000001'
 
-token = 'baa3297a4c53b5516f4fc6a9cc50f859271b4cc8'
+token = 'b73d82cd56e784d34d372368a2cb49b610a024c4'
 headers = {
         "Authorization": f"Token {token}",
         "Content-Type": "application/json"
@@ -21,7 +21,7 @@ def los_estudiantes():
     """
     """
     r = requests.get("http://localhost:8000/api/estudiantes/",
-            auth=('rene', '1'))
+            auth=('aaaron', '1234'))
     print("---------------------")
     print(r.content)
     print("---------------------")
@@ -46,6 +46,27 @@ def los_estudiantes_dos():
     numero_estudiantes = json.loads(r.content)['count']
     return render_template("losestudiantes.html", estudiantes=estudiantes,
     numero_estudiantes=numero_estudiantes)
+
+@app.route("/las/direcciones/dos")
+def las_direcciones_dos():
+    """
+    Función para consumir las direcciones desde Django REST Framework
+    """
+
+    r = requests.get("http://localhost:8000/api/direcciones/", headers=headers)
+
+    print("---------------------")
+    print(r.content)
+    print("---------------------")
+
+    direcciones = json.loads(r.content)['results']
+    numero_direcciones = json.loads(r.content)['count']
+
+    return render_template(
+        "lasdirecciones.html",
+        direcciones=direcciones,
+        numero_direcciones=numero_direcciones
+    )
 
 
 @app.route("/los/telefonos")
