@@ -16,18 +16,20 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class EstudianteSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Estudiante
-        fields = '__all__'
+        fields = ['id', 'url', 'nombre', 'apellido', 'cedula', 'correo']
 
 
 class NumeroTelefonicoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = NumeroTelefonico
-        # fields = ['id', 'telefono', 'tipo']
         fields = '__all__'
+
 
 class DireccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direccion
-        fields = '__all__'
+        fields = ['id', 'descripcion', 'tipo', 'estudiante']

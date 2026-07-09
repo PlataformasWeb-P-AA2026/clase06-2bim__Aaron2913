@@ -115,15 +115,12 @@ def obtener_estudiante(url):
 
 @app.route("/crear/estudiante", methods=['GET', 'POST'])
 def agregar_estudiante():
-    """
-    """
     if request.method == 'POST':
         nombre = request.form['nombre']
         apellido = request.form['apellido']
         cedula = request.form['cedula']
         correo = request.form['correo']
 
-        # Datos a enviar a la API de Django
         estudiante_data = {
             'nombre': nombre,
             'apellido': apellido,
@@ -131,20 +128,28 @@ def agregar_estudiante():
             'correo': correo
         }
 
-
-        # Realizar la petición POST a la API de Django
-        r = requests.post("http://localhost:8000/api/estudiantes/",
-                              json=estudiante_data, # 'json' serializa el diccionario a JSON automáticamente
-                              headers=headers)
-
+        r = requests.post(
+            "http://localhost:8000/api/estudiantes/",
+            json=estudiante_data,
+            headers=headers
+        )
 
         print(f"Status Code (Crear Estudiante): {r.status_code}")
-        # Si todo fue bien (código 201 Created), la API devuelve el objeto creado
-        nuevo_estudiante = json.loads(r.content)
-        flash(f"Estudiante '{nuevo_estudiante['nombre']} {nuevo_estudiante['apellido']}' creado exitosamente!", 'success')
-        return redirect(url_for('los_estudiantes')) # Redirigir a la lista de estudiantes
+        print("Respuesta de Django:")
+        print(r.text)
 
-    # Si es una petición GET o si hubo un error en POST, muestra el formulario
+        respuesta = r.json()
+
+        if r.status_code == 201:
+            flash(
+                f"Estudiante '{respuesta.get('nombre', nombre)} {respuesta.get('apellido', apellido)}' creado exitosamente!",
+                'success'
+            )
+            return redirect(url_for('los_estudiantes_dos'))
+        else:
+            flash(f"No se pudo crear el estudiante. Error: {respuesta}", 'danger')
+            return render_template("crear_estudiante.html")
+
     return render_template("crear_estudiante.html")
 
 @app.route("/crear/numero/telefonico", methods=['GET', 'POST'])
@@ -182,6 +187,71 @@ def crear_numero_telefonico():
                            estudiantes=estudiantes_disponibles,
                            )
 
+@app.route("/crear/direccion", methods=['GET', 'POST'])
+def crear_direccion():
+    """
+    Función para crear una dirección consumiendo la API de Django REST Framework
+    """
 
+    r_estudiantes = requests.get(
+        "http://localhost:8000/api/estudiantes/",
+        headers=headers
+    )
+
+    estudiantes_disponibles = json.loads(r_estudiantes.content)['results']
+
+    print("Estudiantes disponibles:")
+    print(estudiantes_disponibles)
+
+    if request.method == 'POST':
+        descripcion = request.form['descripcion']
+        tipo = request.form['tipo']
+        estudiante_id = request.form.get('estudiante')
+
+        print("Estudiante recibido:")
+        print(estudiante_id)
+
+        if estudiante_id == "" or estudiante_id is None:
+            flash("Debe seleccionar un estudiante.", "danger")
+            return render_template(
+                "crear_direccion.html",
+                estudiantes=estudiantes_disponibles
+            )
+
+        direccion_data = {
+            'descripcion': descripcion,
+            'tipo': tipo,
+            'estudiante': int(estudiante_id)
+        }
+
+        r = requests.post(
+            "http://localhost:8000/api/direcciones/",
+            json=direccion_data,
+            headers=headers
+        )
+
+        print(f"Status Code (Crear Dirección): {r.status_code}")
+        print("Respuesta de Django:")
+        print(r.text)
+
+        respuesta = r.json()
+
+        if r.status_code == 201:
+            flash(
+                f"Dirección '{respuesta.get('descripcion', descripcion)}' creada exitosamente!",
+                'success'
+            )
+            return redirect(url_for('las_direcciones_dos'))
+        else:
+            flash(f"No se pudo crear la dirección. Error: {respuesta}", 'danger')
+            return render_template(
+                "crear_direccion.html",
+                estudiantes=estudiantes_disponibles
+            )
+
+    return render_template(
+        "crear_direccion.html",
+        estudiantes=estudiantes_disponibles
+    )
 if __name__ == "__main__":
     app.run(debug=True)
